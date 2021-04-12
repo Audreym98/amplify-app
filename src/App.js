@@ -5,7 +5,7 @@ import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 import { listNotes } from './graphql/queries';
 import { createNote as createNoteMutation, deleteNote as deleteNoteMutation } from './graphql/mutations';
 
-const initialFormState = { name: '', image: '' }
+const initialFormState = { name: '', post: '', category: '' }
 
 function App() {
   const [notes, setNotes] = useState([]);
@@ -19,18 +19,22 @@ function App() {
     const apiData = await API.graphql({ query: listNotes });
     const notesFromAPI = apiData.data.listNotes.items;
     await Promise.all(notesFromAPI.map(async note => {
-    const image = await Storage.get(note.image);
-    note.image = image;
-    return note;
+          if (note.image) {
+            const image = await Storage.get(note.image);
+            note.image = image;
+          }
+          return note;
     }))
     setNotes(apiData.data.listNotes.items);
   }
 
   async function createNote() {
-    if (!formData.name || !formData.image) return;
+    if (!formData.name || !formData.post || !formData.category) return;
     await API.graphql({ query: createNoteMutation, variables: { input: formData } });
-    const image = await Storage.get(formData.image);
-    formData.image = image;
+    if (formData.image) {
+      const image = await Storage.get(formData.image);
+      formData.image = image;
+    }
     setNotes([ ...notes, formData ]);
     setFormData(initialFormState);
   }
@@ -53,24 +57,44 @@ function App() {
 
   return (
     <div className="App">
-      <h1>My Notes App</h1>
+      <h1>My Blog App</h1>
       <input
         onChange={e => setFormData({ ...formData, 'name': e.target.value})}
-        placeholder="Note name"
+        placeholder="Blog title"
         value={formData.name}
       />
       <input
-        type="file"
-        onChange={onChange}
+        onChange={e => setFormData({ ...formData, 'category': e.target.value})}
+        placeholder="Blog category"
+        value={formData.category}
       />
+      <input
+        onChange={e => setFormData({ ...formData, 'post': e.target.value})}
+        placeholder="Blog post"
+        value={formData.post}
+      />
+      <br />
+      <label class="custom-file-upload">
+            Add image (optional):
+            <input
+            type="file"
+            onChange={onChange}
+            />
+      </label>
+      <br />
       <button onClick={createNote}>Create Note</button>
       <div style={{marginBottom: 30}}>
       {
           notes.map(note => (
             <div key={note.id || note.name}>
               <h2>{note.name}</h2>
-              <img src={note.image} style={{width: 400}} alt=""/>
-              <button onClick={() => deleteNote(note)}>Delete note</button>
+              <p>Category: {note.category}</p>
+              <p>{note.post}</p>
+              {
+                note.image && <img src={note.image} style={{width: 400}} alt=""/>
+              }
+              <br />
+              <button onClick={() => deleteNote(note)}>Delete post</button>
             </div>
           ))
       }
