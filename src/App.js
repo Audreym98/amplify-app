@@ -82,17 +82,18 @@ function App() {
             />
       </label>
       <br />
+      <br />
       <button onClick={createNote}>Create Note</button>
       <div style={{marginBottom: 30}}>
       {
           notes.map(note => (
-            <div key={note.id || note.name}>
+                             <div key={note.name}  style={{marginTop: '60px'}}>
               <h2>{note.name}</h2>
               <p>Category: {note.category}</p>
-              <p>{note.post}</p>
               {
                 note.image && <img src={note.image} style={{width: 400}} alt=""/>
               }
+              <p>{note.post}</p>
               <br />
               <button onClick={() => deleteNote(note)}>Delete post</button>
             </div>
