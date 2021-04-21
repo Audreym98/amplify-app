@@ -4,6 +4,9 @@ import { API, Storage, Analytics } from 'aws-amplify';
 import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 import { listNotes } from './graphql/queries';
 import { createNote as createNoteMutation, deleteNote as deleteNoteMutation } from './graphql/mutations';
+import Navbar from './components/Navbar';
+import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import NewPage from './components/NewPage';
 
 const initialFormState = { name: '', post: '', category: '' }
 
@@ -58,6 +61,15 @@ function App() {
   return (
     <div className="App">
       <h1>My Blog App</h1>
+      <Router>
+          <Navbar/>
+          <Switch>
+            <Route path='/newPage' component={NewPage} />
+            <Route path='/snapchat' component={() => { window.location = 'https://www.snapchat.com'; return null;} }/>
+            <Route path='/burger' component={() => { window.location = 'https://sallysbakingaddiction.com/best-black-bean-burgers/'; return null;} }/>
+          </Switch>
+      </Router>
+      
       <input
         onChange={e => setFormData({ ...formData, 'name': e.target.value})}
         placeholder="Blog title"
